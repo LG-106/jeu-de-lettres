@@ -58,7 +58,7 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
     # Affichage des lettres
     cols = st.columns(len(phrase))
     for i, lettre in enumerate(phrase):
-        color = "white"
+        color = "transparent"
         if st.session_state.locked:
             if st.session_state.clicked[i] and lettre.lower() in lettres_cibles:
                 color = "green"
@@ -66,6 +66,9 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
                 color = "red"
             elif not st.session_state.clicked[i] and lettre.lower() in lettres_cibles:
                 color = "orange"
+        elif st.session_state.clicked[i]:
+            color = "lightgreen"
+
         if cols[i].button(lettre, key=f"btn_{st.session_state.index}_{i}"):
             if not st.session_state.locked:
                 st.session_state.clicked[i] = not st.session_state.clicked[i]
@@ -79,6 +82,8 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
                 font-size: 20px;
                 height: 3em;
                 width: 3em;
+                border: none !important;
+                box-shadow: none !important;
             }}
             </style>
             """,
