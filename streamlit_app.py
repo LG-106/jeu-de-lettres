@@ -47,7 +47,7 @@ if show_teacher:
             st.session_state.consignes = consignes
             st.session_state.clicked = [False] * len(st.session_state.phrases[0])
 
-# Jeu actif (toujours accessible si données chargées)
+# Jeu actif
 if "phrases" in st.session_state and st.session_state.index < len(st.session_state.phrases):
     phrase = st.session_state.phrases[st.session_state.index]
     lettres_cibles = st.session_state.consignes[st.session_state.index]
@@ -55,10 +55,9 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
     if st.session_state.index == 0 or st.session_state.consignes[st.session_state.index] != st.session_state.consignes[st.session_state.index - 1]:
         st.markdown(f"### 🔤 Appuie sur la lettre{'s' if len(lettres_cibles) > 1 else ''} : **{', '.join(lettres_cibles)}**")
 
-    # Affichage des lettres
     cols = st.columns(len(phrase))
     for i, lettre in enumerate(phrase):
-        color = "transparent"
+        # Détermination de la couleur de fond
         if st.session_state.locked:
             if st.session_state.clicked[i] and lettre.lower() in lettres_cibles:
                 color = "green"
@@ -66,13 +65,17 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
                 color = "red"
             elif not st.session_state.clicked[i] and lettre.lower() in lettres_cibles:
                 color = "orange"
-        elif st.session_state.clicked[i]:
-            color = "lightgreen"
+            else:
+                color = "white"
+        else:
+            color = "#a8f0a5" if st.session_state.clicked[i] else "white"
 
+        # Bouton lettre
         if cols[i].button(lettre, key=f"btn_{st.session_state.index}_{i}"):
             if not st.session_state.locked:
                 st.session_state.clicked[i] = not st.session_state.clicked[i]
 
+        # Application du style
         st.markdown(
             f"""
             <style>
