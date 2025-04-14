@@ -56,37 +56,36 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
     if st.session_state.index == 0 or st.session_state.consignes[st.session_state.index] != st.session_state.consignes[st.session_state.index - 1]:
         st.markdown(f"### 🌐 Appuie sur la lettre{'s' if len(lettres_cibles) > 1 else ''} : **{', '.join(lettres_cibles)}**")
 
-    container = st.container()
-    cols = container.columns(len(phrase))
-
+    # Affichage horizontal sans colonne fixe
+    phrase_zone = st.container()
     for i, lettre in enumerate(phrase):
-        # Couleur dynamique
+        color = "#ffffff"
         if st.session_state.locked:
             if st.session_state.clicked[st.session_state.index][i] and lettre.lower() in lettres_cibles:
-                color = "#28a745"  # vert OK
+                color = "#28a745"
             elif st.session_state.clicked[st.session_state.index][i] and lettre.lower() not in lettres_cibles:
-                color = "#dc3545"  # rouge erreur
+                color = "#dc3545"
             elif not st.session_state.clicked[st.session_state.index][i] and lettre.lower() in lettres_cibles:
-                color = "#fd7e14"  # orange oubli
-            else:
-                color = "#ffffff"
+                color = "#fd7e14"
         else:
-            color = "#00cc44" if st.session_state.clicked[st.session_state.index][i] else "#ffffff"
+            if st.session_state.clicked[st.session_state.index][i]:
+                color = "#00cc44"
 
-        # Bouton
-        if cols[i].button(lettre, key=f"btn_{st.session_state.index}_{i}"):
+        key = f"btn_{st.session_state.index}_{i}"
+        if phrase_zone.button(lettre, key=key):
             if not st.session_state.locked:
                 st.session_state.clicked[st.session_state.index][i] = not st.session_state.clicked[st.session_state.index][i]
 
         st.markdown(
             f"""
             <style>
-            div[data-testid="column"]:nth-of-type({i+1}) button {{
+            button[data-testid="baseButton"]:has(div:contains('{lettre}')) {{
                 background-color: {color};
                 color: black;
                 font-size: 20px;
                 height: 3em;
                 width: 3em;
+                margin: 0.2em;
                 border: none !important;
                 border-radius: 8px;
                 transition: all 0.3s ease-in-out;
