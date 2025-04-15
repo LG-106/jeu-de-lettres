@@ -61,26 +61,30 @@ if mode == "Elève":
         else:
             color = "#00cc44" if clicked else "#ffffff"
 
-        if cols[i].button(lettre, key=f"btn_{st.session_state.index}_{i}"):
-            if not st.session_state.locked:
-                st.session_state.clicked[st.session_state.index][i] = not clicked
+        with cols[i]:
+            if st.button(lettre, key=f"btn_{st.session_state.index}_{i}"):
+                if not st.session_state.locked:
+                    st.session_state.clicked[st.session_state.index][i] = not clicked
 
-        st.markdown(f"""
-        <style>
-        div[data-testid="column"]:nth-of-type({i+1}) button {{
-            background-color: {color} !important;
-            box-shadow: none !important;
-            outline: none !important;
-            color: black;
-            font-size: 20px;
-            height: 3em;
-            width: 3em;
-            border: none;
-            border-radius: 8px;
-            margin-bottom: 0.5em;
-        }}
-        </style>
-        """, unsafe_allow_html=True)
+            st.markdown(
+                f"""
+                <style>
+                div[data-testid="column"]:nth-of-type({i+1}) button {{
+                    background-color: {color} !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                    color: black;
+                    font-size: 20px;
+                    height: 3em;
+                    width: 3em;
+                    border: none;
+                    border-radius: 8px;
+                    margin-bottom: 0.5em;
+                }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
 
     if not st.session_state.locked:
         if st.button("✅ Valider mes réponses"):
