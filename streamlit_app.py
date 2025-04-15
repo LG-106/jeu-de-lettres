@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 
 # Initialisation des données persistantes
 if "index" not in st.session_state:
@@ -56,44 +57,71 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
     if st.session_state.index == 0 or st.session_state.consignes[st.session_state.index] != st.session_state.consignes[st.session_state.index - 1]:
         st.markdown(f"### 🌐 Appuie sur la lettre{'s' if len(lettres_cibles) > 1 else ''} : **{', '.join(lettres_cibles)}**")
 
-    # Affichage horizontal sans colonne fixe
-    phrase_zone = st.container()
+    # Zone d'affichage personnalisée
+    phrase_zone = ""
     for i, lettre in enumerate(phrase):
-        color = "#ffffff"
+        unique_id = f"letter_{st.session_state.index}_{i}"
+        if "_clicks" not in st.session_state:
+            st.session_state._clicks = {}
+        clicked = st.session_state.clicked[st.session_state.index][i]
+
         if st.session_state.locked:
-            if st.session_state.clicked[st.session_state.index][i] and lettre.lower() in lettres_cibles:
-                color = "#28a745"
-            elif st.session_state.clicked[st.session_state.index][i] and lettre.lower() not in lettres_cibles:
-                color = "#dc3545"
-            elif not st.session_state.clicked[st.session_state.index][i] and lettre.lower() in lettres_cibles:
-                color = "#fd7e14"
+            if clicked and lettre.lower() in lettres_cibles:
+                bg = "#28a745"
+            elif clicked and lettre.lower() not in lettres_cibles:
+                bg = "#dc3545"
+            elif not clicked and lettre.lower() in lettres_cibles:
+                bg = "#fd7e14"
+            else:
+                bg = "#ffffff"
         else:
-            if st.session_state.clicked[st.session_state.index][i]:
-                color = "#00cc44"
+            bg = "#00cc44" if clicked else "#ffffff"
 
-        key = f"btn_{st.session_state.index}_{i}"
-        if phrase_zone.button(lettre, key=key):
-            if not st.session_state.locked:
-                st.session_state.clicked[st.session_state.index][i] = not st.session_state.clicked[st.session_state.index][i]
+        style = f"""
+        <style>
+        div[role="button"][id="{unique_id}"] {{
+            background-color: {bg};
+            color: black;
+            display: inline-block;
+            margin: 0.2em;
+            padding: 0.5em 0.7em;
+            border-radius: 0.5em;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            font-size: 1.2em;
+            text-align: center;
+            width: 2.5em;
+        }}
+        </style>
+        """
 
-        st.markdown(
-            f"""
-            <style>
-            button[data-testid="baseButton"]:has(div:contains('{lettre}')) {{
-                background-color: {color};
-                color: black;
-                font-size: 20px;
-                height: 3em;
-                width: 3em;
-                margin: 0.2em;
-                border: none !important;
-                border-radius: 8px;
-                transition: all 0.3s ease-in-out;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.markdown(style + f'<div id="{unique_id}" role="button">{lettre}</div>', unsafe_allow_html=True)
+
+        if not st.session_state.locked:
+            if st.session_state.get("_last_clicked") == unique_id:
+                st.session_state.clicked[st.session_state.index][i] = not clicked
+                st.session_state._last_clicked = None
+
+    # JS pour gérer le clic en HTML pur
+    st.markdown("""
+    <script>
+    const blocks = window.parent.document.querySelectorAll('[role="button"]');
+    blocks.forEach(btn => {
+        btn.onclick = () => {
+            const input = window.parent.document.createElement("input");
+            input.type = "hidden";
+            input.name = "click_event";
+            input.value = btn.id;
+            window.parent.document.body.appendChild(input);
+            input.form.dispatchEvent(new Event("submit", {cancelable: true}));
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
+
+    clicked_id = st.experimental_get_query_params().get("click_event", [None])[0]
+    if clicked_id:
+        st.session_state._last_clicked = clicked_id
 
     # Validation
     if not st.session_state.locked:
