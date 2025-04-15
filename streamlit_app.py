@@ -119,7 +119,7 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
     </script>
     """, unsafe_allow_html=True)
 
-    clicked_id = st.experimental_get_query_params().get("click_event", [None])[0]
+    clicked_id = st.query_params.get("click_event", [None])[0]
     if clicked_id:
         st.session_state._last_clicked = clicked_id
 
