@@ -1,5 +1,6 @@
+st.markdown(f"""
 <style>
-div[data-testid="column"]:nth-of-type({i+1}) button {
+div[data-testid="column"]:nth-of-type({i+1}) button {{
     background-color: {color} !important;
     box-shadow: none !important;
     outline: none !important;
@@ -10,11 +11,9 @@ div[data-testid="column"]:nth-of-type({i+1}) button {
     border: none;
     border-radius: 8px;
     margin-bottom: 0.5em;
-}
+}}
 </style>
-""",
-unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 # Validation
 if not st.session_state.locked:
