@@ -1,5 +1,10 @@
 import streamlit as st
 
+# Initialisation si nécessaire
+if "phrases" not in st.session_state or "consignes" not in st.session_state:
+    st.error("Aucune donnée trouvée. Veuillez d'abord lancer le jeu depuis l'interface enseignant.")
+    st.stop()
+
 # Ce bloc doit être exécuté dans une boucle for i, lettre in enumerate(phrase):
 # car il utilise les variables i et color
 
