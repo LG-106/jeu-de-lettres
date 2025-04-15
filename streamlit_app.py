@@ -1,5 +1,4 @@
 import streamlit as st
-import uuid
 
 # Initialisation des données persistantes
 if "index" not in st.session_state:
@@ -57,71 +56,43 @@ if "phrases" in st.session_state and st.session_state.index < len(st.session_sta
     if st.session_state.index == 0 or st.session_state.consignes[st.session_state.index] != st.session_state.consignes[st.session_state.index - 1]:
         st.markdown(f"### 🌐 Appuie sur la lettre{'s' if len(lettres_cibles) > 1 else ''} : **{', '.join(lettres_cibles)}**")
 
-    # Zone d'affichage personnalisée
-    phrase_zone = ""
+    cols = st.columns(len(phrase))
     for i, lettre in enumerate(phrase):
-        unique_id = f"letter_{st.session_state.index}_{i}"
-        if "_clicks" not in st.session_state:
-            st.session_state._clicks = {}
         clicked = st.session_state.clicked[st.session_state.index][i]
 
         if st.session_state.locked:
             if clicked and lettre.lower() in lettres_cibles:
-                bg = "#28a745"
+                color = "#28a745"
             elif clicked and lettre.lower() not in lettres_cibles:
-                bg = "#dc3545"
+                color = "#dc3545"
             elif not clicked and lettre.lower() in lettres_cibles:
-                bg = "#fd7e14"
+                color = "#fd7e14"
             else:
-                bg = "#ffffff"
+                color = "#ffffff"
         else:
-            bg = "#00cc44" if clicked else "#ffffff"
+            color = "#00cc44" if clicked else "#ffffff"
 
-        style = f"""
-        <style>
-        div[role="button"][id="{unique_id}"] {{
-            background-color: {bg};
-            color: black;
-            display: inline-block;
-            margin: 0.2em;
-            padding: 0.5em 0.7em;
-            border-radius: 0.5em;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            font-size: 1.2em;
-            text-align: center;
-            width: 2.5em;
-        }}
-        </style>
-        """
-
-        st.markdown(style + f'<div id="{unique_id}" role="button">{lettre}</div>', unsafe_allow_html=True)
-
-        if not st.session_state.locked:
-            if st.session_state.get("_last_clicked") == unique_id:
+        if cols[i].button(lettre, key=f"btn_{st.session_state.index}_{i}"):
+            if not st.session_state.locked:
                 st.session_state.clicked[st.session_state.index][i] = not clicked
-                st.session_state._last_clicked = None
 
-    # JS pour gérer le clic en HTML pur
-    st.markdown("""
-    <script>
-    const blocks = window.parent.document.querySelectorAll('[role="button"]');
-    blocks.forEach(btn => {
-        btn.onclick = () => {
-            const input = window.parent.document.createElement("input");
-            input.type = "hidden";
-            input.name = "click_event";
-            input.value = btn.id;
-            window.parent.document.body.appendChild(input);
-            input.form.dispatchEvent(new Event("submit", {cancelable: true}));
-        }
-    });
-    </script>
-    """, unsafe_allow_html=True)
-
-    clicked_id = st.query_params.get("click_event", [None])[0]
-    if clicked_id:
-        st.session_state._last_clicked = clicked_id
+        st.markdown(
+            f"""
+            <style>
+            div[data-testid="column"]:nth-of-type({i+1}) button {{
+                background-color: {color};
+                color: black;
+                font-size: 20px;
+                height: 3em;
+                width: 3em;
+                border: none;
+                border-radius: 8px;
+                margin-bottom: 0.5em;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
 
     # Validation
     if not st.session_state.locked:
