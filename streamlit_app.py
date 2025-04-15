@@ -1,19 +1,47 @@
-st.markdown(f"""
-<style>
-div[data-testid="column"]:nth-of-type({i+1}) button {{
-    background-color: {color} !important;
-    box-shadow: none !important;
-    outline: none !important;
-    color: black;
-    font-size: 20px;
-    height: 3em;
-    width: 3em;
-    border: none;
-    border-radius: 8px;
-    margin-bottom: 0.5em;
-}}
-</style>
-""", unsafe_allow_html=True)
+import streamlit as st
+
+# Ce bloc doit être exécuté dans une boucle for i, lettre in enumerate(phrase):
+# car il utilise les variables i et color
+
+phrase = st.session_state.phrases[st.session_state.index]
+lettres_cibles = st.session_state.consignes[st.session_state.index]
+
+for i, lettre in enumerate(phrase):
+    clicked = st.session_state.clicked[st.session_state.index][i]
+
+    if st.session_state.locked:
+        if clicked and lettre.lower() in lettres_cibles:
+            color = "#28a745"
+        elif clicked and lettre.lower() not in lettres_cibles:
+            color = "#dc3545"
+        elif not clicked and lettre.lower() in lettres_cibles:
+            color = "#fd7e14"
+        else:
+            color = "#ffffff"
+    else:
+        color = "#00cc44" if clicked else "#ffffff"
+
+    col = st.columns(len(phrase))[i]
+    if col.button(lettre, key=f"btn_{st.session_state.index}_{i}"):
+        if not st.session_state.locked:
+            st.session_state.clicked[st.session_state.index][i] = not clicked
+
+    st.markdown(f"""
+    <style>
+    div[data-testid="column"]:nth-of-type({i+1}) button {{
+        background-color: {color} !important;
+        box-shadow: none !important;
+        outline: none !important;
+        color: black;
+        font-size: 20px;
+        height: 3em;
+        width: 3em;
+        border: none;
+        border-radius: 8px;
+        margin-bottom: 0.5em;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
 # Validation
 if not st.session_state.locked:
